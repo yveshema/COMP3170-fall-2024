@@ -114,10 +114,17 @@ input[type="search"] {
   footer {
     padding: 0 2em;
     background: #141414;
-    display: flex;
-    justify-content: space-between;
-    
     color: #fff;
+
+    > div {
+      display: flex;
+      justify-content: space-between;
+
+      &:last-child {
+        justify-content: center;
+        padding-top: 2em;
+      }
+    }
     
     ul {
       list-style: none;

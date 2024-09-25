@@ -1,0 +1,12 @@
+.outer {
+    width: 12em;
+    height: 12em;
+    padding: 1em;
+    border: 1px solid;
+}
+
+.inner {
+    width: 4em;
+    height: 4em;
+    border: 1px solid;
+}

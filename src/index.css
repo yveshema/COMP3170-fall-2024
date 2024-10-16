@@ -151,17 +151,18 @@ select {
 .product {
   display: flex;
   flex-direction: column;
-  width: 300px;
   background: #fff;
+  margin-bottom: 2em;
 
   .product-image {
-    height: 50%;
-    overflow: hidden;
-    aspect-ratio: auto;
+    width: 300px;
+    height: 300px;
   }
   
   img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   
   button{
@@ -343,13 +344,7 @@ button.icon-btn {
     right: -0.5rem;
     top: -0.5rem;
     background: chocolate;
-    /* color: blue; */
-    
   }
-}
-
-.edit-modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
 }
 
 .btn-primary {
@@ -398,3 +393,135 @@ button.icon-btn {
     }
   }
 }
+
+/* SHOPPING CART STYLES */
+dialog#cart-modal {
+  position: fixed;
+  top: 0;
+  right:-400px;
+  opacity: 0;
+  border: none;
+  padding: 0 1em;
+  width: 400px;
+  min-height: 100%;
+  margin: unset;
+  inset-inline-start: unset;
+  z-index: 999;
+
+  &[open] {
+    animation: fadein 500ms ease-out forwards;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  > span {
+    color: #a0a0a0;
+  }
+
+  button {
+    text-transform: uppercase;
+    padding: .8em 1em;
+  }
+
+  > div:first-child {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 1em;
+    height: 40vh;
+    overflow-y: scroll;
+  }
+
+  .cart-preview-summary {
+    background: #fff;
+    padding-top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    > p {
+      color: #a0a0a0;
+    }
+
+    > div {
+      padding: 1em 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #141414;
+      display: flex;
+      justify-content: space-between;
+      span {
+        color: inherit;
+      }
+    }
+  }
+
+  .cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@keyframes fadein {
+  100% {
+    right: 0;
+    opacity: 1;
+  }
+}
+
+.cart-item {
+  display: flex;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #ccc;
+
+  .item-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 1em;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  > div:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+.spinner {
+  border: 1px solid #999;
+  padding: 0 0.3em;
+  span {
+    padding: .2em;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #000;
+
+    &.spin-button {
+      cursor: pointer;
+    }
+
+    &.minus {
+      line-height: .9;
+    }
+  }
+}
+/* END OF SHOPPING CART STYLES */

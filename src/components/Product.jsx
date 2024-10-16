@@ -1,4 +1,4 @@
-export default function Product({product}){
+export default function Product({ product, addToWishlist, addToCart }){
 
     return (
         <div className="product">
@@ -9,8 +9,8 @@ export default function Product({product}){
               <span className="pr-name">{product.name}</span>
               <span className="pr-price">${product.price}</span>
             </p>
-            <button className="add-to-cart">Add to cart</button>
-            <button><span>&#129293;</span> <span>Add to wishlist</span></button>
+            <button className="add-to-cart" onClick={() => addToCart(product)}>Add to cart</button>
+            <button onClick={() => addToWishlist(product)}><span>&#129293;</span> <span>Add to wishlist</span></button>
         </div>
     );
 }

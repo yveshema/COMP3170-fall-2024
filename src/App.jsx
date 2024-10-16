@@ -1,7 +1,13 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
 import FooterColumnLinks from "./components/FooterColumnLinks";
 import Product from "./components/Product";
+import ProductForm from './components/ProductForm';
+import CategoryForm from './components/CategoryForm';
+import CartPreview from './components/CartPreview';
+import CartItem from './components/CartItem';
+import Spinner from './components/Spinner';
+
+import { MdDelete } from 'react-icons/md';
 
 import { initialProducts, footerLinks, initialCategories } from './fixtures';
 
@@ -13,153 +19,98 @@ function App() {
 
   const [categories, setCategories] = useState(initialCategories);
 
-  // state variable for the product form
-  const [product, setProduct] = useState({
-    name: 'new product',
-    image_url: "https://placehold.co/600x400?text=New\nProduct",
-    category: 0,
-    price: 0.0,
-    quantity: 1,
-  });
-
   // JSX
   const footerColumns = footerLinks.map(column => <FooterColumnLinks key={column.title} data={column} />);
-  const productList = products.map(product => <Product key={product.name} product={product} />);
+  const productList = products.map(product => <Product key={product.name} product={product} addToWishlist={addToWishlist} addToCart={addToCart} />);
 
-  // const categoryOptions = categories.map(category => (
-  //   <option key={category.id} value={category.id}>{category.name}</option>
-  // ));
-
-  function handleCancel(e) {
-    e.preventDefault();
-    setEditing(false);
-  }
-
-  function handleAddProduct(e) {
-    e.preventDefault();
-
-    // update list of products
+  function addProduct(product) {
     setProducts([...products, product]);
-
-    // dismiss the form
-    setEditing(false);
-
-    // restore form state
-    setProduct({
-      name: 'new product',
-      image_url: "https://placehold.co/600x400?text=New\nProduct",
-      category: 0,
-      price: 0.0,
-      quantity: 1,
-    });
   }
 
-  // Product Form
-  const productForm = (
-    <form onSubmit={handleAddProduct}>
-      <div className="control-group">
-        <label htmlFor="product-name">Name: </label>
-        <input 
-          id="product-name"
-          name="name"
-          type="text"
-          value={product.name}
-          onChange={(e) => setProduct({...product, name: e.target.value})}
-        />
-      </div>
+  function toggleEdit() {
+    setEditing(!editing);
+  }
 
-      <div className="control-group">
-        <label htmlFor="product-image">Image: </label>
-        <input 
-          id="product-image"
-          name="image_url"
-          type="url"
-          value={product.image_url}
-          onChange={(e) => setProduct({...product, image_url: e.target.value})}
-        />
-      </div>
+  function addCategory(category) {
+    setCategories([...categories, category]);
+  }
 
-      <div>
-        <label htmlFor="product-category">Category: </label>
-        <select 
-          id="product-category"
-          name="category"
-          value={product.category}
-          onChange={(e) => setProduct({...product, category: e.target.value})}
-        >
-          {categories.map(category => (
-            <option key={category.id} value={category.id}>{category.name}</option>
-          ))}
-        </select>
-      </div>
+  const [wishlist, setWishlist] = useState(new Set());
 
-      <div>
-        <label htmlFor="product-price">Price: </label>
-        <input 
-          id="product-price"
-          name="price"
-          type="number"
-          step="0.01"
-          value={product.price}
-          onChange={(e) => setProduct({...product, price: e.target.value})}
-        />
-      </div>
+  function addToWishlist(product) {
+    setWishlist(new Set(wishlist.add(product)));
+  }
 
-      <div>
-        <label htmlFor="product-qty">Quantity: </label>
-        <input 
-          id="product-qty"
-          name="quantity"
-          type="number"
-          value={product.quantity}
-          onChange={(e) => setProduct({...product, quantity: e.target.value})}
-        />
-      </div>
+  const [cart, setCart] = useState(new Map());
 
-      <div className="btn-group">
-        <button className="btn-primary">Save</button>
-        <button className="btn-cancel" onClick={handleCancel}>Cancel</button>
-      </div>
-    </form>
-  );
 
-  // Category Form
-  const categoryForm = (
-    <form>
-      <div className="control-group">
-        <label htmlFor="category-name">Name: </label>
-        <input 
-          id="category-name"
-          name="name"
-          type="text"
-        />
-      </div>
+  function addToCart(product) {
+    cart.set(product, 1);
+    setCart(new Map(cart)); // force state update
+  }
 
-      <div className="control-group">
-        <label htmlFor="category-desc">Name: </label>
-        <input 
-          id="category-desc"
-          name="description"
-          type="text"
-        />
-      </div>
+  function deleteCartItem(product) {
+    cart.delete(product);
+    setCart(new Map(cart)); // force state update
+  }
 
-      <div className="btn-group">
-        <button className="btn-primary">Save</button>
-        <button className="btn-cancel" onClick={handleCancel}>Cancel</button>
-      </div>
-    </form>
-  );
-  
+  function incrementCartItem(product) {
+    const currentCount = cart.get(product);
+    cart.set(product, currentCount + 1);
+    setCart(new Map(cart));
+  }
+
+  function decrementCartItem(product) {
+    if (cart.get(product) <= 1) {
+      cart.delete(product);
+      setCart(new Map(cart)); // force state update
+    } else {
+      const currentCount = cart.get(product);
+      cart.set(product, currentCount - 1);
+      setCart(new Map(cart)); // force state update
+    }
+  }
+
+  function computeCartSize() {
+    return [...cart.entries()].reduce((acc, [product, count]) => acc + count, 0);
+  }
+
+  function computeCartTotal() {
+    return [...cart.entries()].reduce((acc, [product, count]) => acc + (product.price * count), 0);
+  }
+
+  // derived state -> will be recomputed everytime the cart state changes
+  const cartSize = computeCartSize();
+
+  const cartTotal = computeCartTotal();
+
+  function showCart() {
+    const cartModal = document.getElementById('cart-modal');
+    document.body.style.overflow = 'hidden';
+    cartModal.showModal();
+  }
+
+  function hideCart() {
+    const cartModal = document.getElementById('cart-modal');
+    cartModal.close();
+    document.body.style.overflow = 'visible';
+  }
+
   return (
-    <div class="app">
+    <div className="app">
       <section id="content">
         <header>
           <div>
             <h1>Shop Mart</h1>
             <div>
-              <button className="icon-btn"><span>&#129293;</span><span className="badge">2</span></button>
-              <button className="icon-btn"><span>&#128722;</span><span className="badge">1</span></button>
+              <button className="icon-btn">
+                <span>&#129293;</span>
+                {wishlist.size > 0 && <span className="badge">{wishlist.size}</span>}
+              </button>
+              <button className="icon-btn" onClick={showCart}>
+                <span>&#128722;</span>
+                {cartSize > 0 && <span className="badge">{cartSize}</span>}
+              </button>
             </div>
           </div>
           
@@ -183,15 +134,49 @@ function App() {
           
         </header>
 
-        <div className="add-form">
-          {editing === 'product' && productForm}
-          {editing === 'category' && categoryForm}
-        </div>
+        {editing === 'product' && <ProductForm add={addProduct} toggleEdit={toggleEdit} categories={categories} />}
+        {editing === 'category' && <CategoryForm add={addCategory} toggleEdit={toggleEdit} />}
 
         <main>
           {productList}
         </main>
       </section>
+
+      <CartPreview hideCart={hideCart}>
+          <span>{cartSize} items</span>
+          {cartSize > 0 ? (
+            <>
+            <div className="cart-items">
+            {[...cart.entries()].map(([product, count]) => (
+              <CartItem key={product.id} item={product}>
+                <div>
+                  <Spinner count={count} increment={() => incrementCartItem(product)} decrement={() => decrementCartItem(product)} />
+                  <button onClick={() => deleteCartItem(product)}><MdDelete /></button>
+                </div>
+              </CartItem>
+            ))}
+            </div>
+
+            <div className="cart-preview-summary">
+              <div>
+                <span>Total:</span>
+                <span>${cartTotal}</span>
+              </div>
+              <p>Tax included and shipping calculated at checkout.</p>
+              <button className="btn-primary">checkout</button>
+              <button className="btn-secondary">view cart</button>
+            </div>
+            </>
+
+          )
+          : (
+            <div className="cart-empty">
+              <p>Your cart is empty</p>
+              <button className="btn-secondary" onClick={hideCart}>continue shopping</button>
+            </div>
+          )}
+      </CartPreview>
+
       <footer>
         <div>
           {footerColumns}

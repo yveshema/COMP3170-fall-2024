@@ -138,7 +138,7 @@ function App() {
         {editing === 'category' && <CategoryForm add={addCategory} toggleEdit={toggleEdit} />}
 
         <main>
-          {productList}
+          <div className="products">{productList}</div>
         </main>
       </section>
 

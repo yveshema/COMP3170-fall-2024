@@ -65,10 +65,18 @@ select {
       flex-direction: column;
       gap: 2em;
 
+      .mobile {
+        display: flex;
+        gap: 1em;
+        > button {
+          font-size: 1.3em;
+        }
+      }
 
       > div {
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
 
         &:first-child {
           padding-bottom: 1.5em;
@@ -83,19 +91,24 @@ select {
     
       nav {
         padding-top: .5em;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
 
         button {
           text-transform: uppercase;
           font-weight: bold;
           letter-spacing: .1em;
         
-          &:hover {
+          &:hover,
+          &:focus {
             background-color: #141414;
             color: #fff;
           }
         }
 
         + form {
+          
           display: flex;
           button {
             background: #141414;
@@ -105,14 +118,33 @@ select {
         
       }
 
+      @media screen and (min-width: 1024px) {
+        .mobile {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 1023px) {
+        .sub-header {
+          display: none;
+        }
+
+        > div:first-child {
+          align-items: flex-end;
+          padding-bottom: 0;
+        }
+      }
+
     }
 
     main {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      padding-bottom: 2em;
+      .products {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding-bottom: 2em;
+      }
     }
   }
 
@@ -391,6 +423,14 @@ button.icon-btn {
       display: flex;
       justify-content: space-between;
     }
+  }
+}
+
+.search-form {
+  display: flex;
+  button {
+    background: #141414;
+    color: #fff;
   }
 }
 

@@ -1,35 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect,  useReducer } from 'react';
+
+import PostList from './components/PostList';
+
+import { AppContext, appReducer } from './appContext';
+
+import { Link, Outlet } from 'react-router-dom';
+
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [posts, setPosts] = useState([]);
+  const [posts, dispatch] = useReducer(appReducer, []);
+
+  function getComments(comments, post) {
+    return comments.filter(comment => comment.postId == post.id);
+  }
+
+  // function addComment(comment) {
+  //   const post = posts.find(p => p.id == comment.postId);
+
+  //   const comments = [...post.comments, comment];
+
+  //   const updatedPosts = posts.map(p => {
+  //     if (p.id == comment.postId) {
+  //       return { ...post, comments };
+  //     } else {
+  //       return p;
+  //     }
+  //   });
+
+  //   setPosts(updatedPosts);
+  // }
+
+  // function updateComment(comment) {
+  //   const post = posts.find(p => p.id == comment.postId);
+
+  //   const comments = post.comments.map(c => {
+  //     if (c.id == comment.id) {
+  //       return comment;
+  //     } else {
+  //       return c;
+  //     }
+  //   });
+
+  //   const updatedPosts = posts.map(p => {
+  //     if (p.id == comment.postId) {
+  //       return { ...post, comments };
+  //     } else {
+  //       return p;
+  //     }
+  //   });
+
+  //   setPosts(updatedPosts);
+  // }
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const [postsResp, commentsResp] = await Promise.all([
+          fetch('https://jsonplaceholder.typicode.com/posts'),
+          fetch('https://jsonplaceholder.typicode.com/comments')
+        ]);
+
+        let posts = await postsResp.json();
+        const comments = await commentsResp.json();
+        posts = posts.map(post => ({...post, comments: getComments(comments, post)}));
+        // setPosts(posts);
+        dispatch({
+          type: 'load_posts',
+          payload: posts,
+        });
+
+      } catch(e) {
+        console.error(e.message);
+      }
+    }
+
+    fetchPosts();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="App">
+      <Link to="/">Home</Link>
+      {/* <AppContext.Provider value={{
+        posts,
+        dispatch,
+      }}> */}
+        <Outlet context={{ posts, dispatch }} />
+      {/* </AppContext.Provider> */}
+      
+    </div>
+  );
 }
 
-export default App
+export default App;
